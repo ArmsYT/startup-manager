@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data: https://www.gravatar.com; style-src 'self' 'unsafe-inline'; script-src 'self'" />
+  <title>Startup Manager</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="app">
+
+    <!-- Barre de titre personnalisée (fenêtre frameless) -->
+    <header class="titlebar">
+      <div class="titlebar-brand">
+        <span class="brand-dot"></span>
+        <span class="brand-title">Startup Manager</span>
+      </div>
+      <div class="titlebar-controls">
+        <button id="btn-minimize" class="win-btn" title="Réduire" aria-label="Réduire">
+          <svg viewBox="0 0 12 12" width="12" height="12"><rect x="1" y="5.5" width="10" height="1.2" rx="0.6" fill="currentColor"/></svg>
+        </button>
+        <button id="btn-close" class="win-btn win-btn-close" title="Fermer" aria-label="Fermer">
+          <svg viewBox="0 0 12 12" width="12" height="12"><path d="M1 1L11 11M11 1L1 11" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Barre d'outils -->
+    <section class="toolbar">
+      <label class="auto-toggle">
+        <input type="checkbox" id="auto-launch-toggle" />
+        <span class="switch"><span class="knob"></span></span>
+        <span class="auto-toggle-label">
+          <strong>Démarrer avec Windows</strong>
+          <small>Lance ce gestionnaire au démarrage de la session</small>
+        </span>
+      </label>
+
+      <div class="toolbar-actions">
+        <button id="btn-reorder" class="btn btn-ghost" data-active="false">
+          <svg class="icon" viewBox="0 0 20 20" width="16" height="16">
+            <path d="M14.85 2.85a2.1 2.1 0 0 1 2.97 2.97L7.5 16.14 3 17l.86-4.5L14.85 2.85Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" fill="none"/>
+          </svg>
+          <span class="reorder-label">Modifier l'ordre</span>
+        </button>
+        <button id="btn-add" class="btn btn-accent">
+          <svg class="icon" viewBox="0 0 20 20" width="16" height="16">
+            <path d="M10 3v14M3 10h14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+          </svg>
+          <span>Ajouter</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- Bandeau mode réorganisation -->
+    <div id="reorder-banner" class="reorder-banner" hidden>
+      <span>Glissez les cartes pour changer l'ordre de démarrage.</span>
+      <button id="btn-reorder-done" class="btn btn-small">Terminé</button>
+    </div>
+
+    <!-- Liste des applications -->
+    <main class="list-wrap">
+      <ul id="app-list" class="app-list"></ul>
+      <div id="empty-state" class="empty-state" hidden>
+        <svg viewBox="0 0 48 48" width="40" height="40"><rect x="8" y="14" width="32" height="24" rx="3" stroke="currentColor" stroke-width="2" fill="none"/><path d="M8 20h32" stroke="currentColor" stroke-width="2"/><path d="M17 29h4M17 33h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        <p>Aucune application configurée.</p>
+        <span>Cliquez sur « Ajouter » pour lancer une application au démarrage.</span>
+      </div>
+    </main>
+
+    <footer class="app-footer">
+      <span class="footer-spacer" aria-hidden="true"></span>
+      <span class="footer-center">
+        <img id="footer-avatar" class="footer-avatar" src="https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&s=64" alt="" />
+        <a id="footer-name" class="footer-link" href="https://thearms.fr" target="_blank" rel="noopener noreferrer">Arms</a>
+        <span class="footer-sep">–</span>
+        <a id="footer-repo" class="footer-link" href="https://github.com/" target="_blank" rel="noopener noreferrer">Repositories</a>
+      </span>
+      <span class="footer-right">
+        <button id="btn-check-update" class="icon-btn" title="Vérifier les mises à jour" type="button">
+          <svg viewBox="0 0 20 20" width="13" height="13"><path d="M4 10a6 6 0 0 1 10.2-4.24M16 10a6 6 0 0 1-10.2 4.24M13 3v3h-3M7 17v-3h3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
+        </button>
+        <span id="footer-version" class="footer-version">v1.0.0</span>
+      </span>
+    </footer>
+
+  </div>
+
+  <!-- Modale d'ajout / modification -->
+  <div id="modal-overlay" class="modal-overlay" hidden>
+    <div class="modal">
+      <h2 id="modal-title">Ajouter une application</h2>
+
+      <div class="field">
+        <label>Exécutable</label>
+        <div class="field-row">
+          <input id="modal-exec-path" type="text" readonly placeholder="Aucun fichier choisi" />
+          <button id="btn-browse" class="btn btn-small btn-ghost">Parcourir…</button>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="modal-name">Nom</label>
+        <input id="modal-name" type="text" placeholder="Nom de l'application" maxlength="60" />
+      </div>
+
+      <div class="field">
+        <label>Icône</label>
+        <div class="icon-field-row">
+          <span id="modal-icon-preview" class="icon-preview">?</span>
+          <button id="btn-pick-icon" class="btn btn-small btn-ghost" type="button">Choisir un fichier…</button>
+          <button id="btn-auto-icon" class="btn btn-small btn-ghost" type="button" title="Réextraire l'icône de l'exécutable">Auto</button>
+        </div>
+        <small class="field-hint">Si l'icône ne se remplit pas toute seule (ex. Discord), choisissez un .ico, .png ou un autre .exe.</small>
+      </div>
+
+      <div class="field-group">
+        <div class="field">
+          <label for="modal-args">Arguments (optionnel)</label>
+          <input id="modal-args" type="text" placeholder="--minimized" />
+        </div>
+        <div class="field field-small">
+          <label for="modal-delay">Délai (ms)</label>
+          <input id="modal-delay" type="number" min="0" step="500" value="0" />
+        </div>
+      </div>
+
+      <p id="modal-error" class="modal-error" hidden></p>
+
+      <div class="modal-actions">
+        <button id="btn-cancel" class="btn btn-ghost">Annuler</button>
+        <button id="btn-save" class="btn btn-accent">Enregistrer</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Boîte de confirmation suppression -->
+  <div id="confirm-overlay" class="modal-overlay" hidden>
+    <div class="modal modal-confirm">
+      <h2>Retirer cette application ?</h2>
+      <p id="confirm-text">Elle ne sera plus lancée au démarrage.</p>
+      <div class="modal-actions">
+        <button id="btn-confirm-cancel" class="btn btn-ghost">Annuler</button>
+        <button id="btn-confirm-delete" class="btn btn-danger">Retirer</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Vérification des mises à jour -->
+  <div id="update-overlay" class="modal-overlay" hidden>
+    <div class="modal modal-confirm">
+      <h2 id="update-title">Vérification des mises à jour</h2>
+      <p id="update-text">Recherche en cours…</p>
+      <div class="modal-actions">
+        <button id="btn-update-close" class="btn btn-ghost">Fermer</button>
+        <button id="btn-update-open" class="btn btn-accent" hidden>Voir la release</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="renderer.js"></script>
+</body>
+</html>

@@ -1,0 +1,45 @@
+{
+  "name": "startup-manager",
+  "version": "1.0.0",
+  "description": "Gestionnaire d'applications au démarrage de Windows",
+  "main": "main.js",
+  "author": "Arms",
+  "license": "MIT",
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "electron": "^28.3.3",
+    "electron-builder": "^24.13.3"
+  },
+  "build": {
+    "appId": "fr.thearms.startupmanager",
+    "productName": "Startup Manager",
+    "asar": true,
+    "files": [
+      "main.js",
+      "preload.js",
+      "arms.config.js",
+      "src/**/*",
+      "assets/**/*"
+    ],
+    "win": {
+      "target": [
+        { "target": "nsis", "arch": ["x64"] },
+        { "target": "portable", "arch": ["x64"] }
+      ],
+      "icon": "assets/icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "installerIcon": "assets/icon.ico",
+      "uninstallerIcon": "assets/icon.ico"
+    },
+    "portable": {
+      "artifactName": "${productName}-${version}-portable.${ext}"
+    }
+  }
+}
