@@ -89,6 +89,15 @@ async function runStartupSequence() {
 /*  Fenêtre principale                                                 */
 /* ------------------------------------------------------------------ */
 
+/* ------------------------------------------------------------------ */
+/*  Icône de l'application (barre des tâches, Alt+Tab)                 */
+/* ------------------------------------------------------------------ */
+
+function getAppIconPath() {
+  const iconPath = path.join(__dirname, 'assets', 'icon.ico');
+  return fs.existsSync(iconPath) ? iconPath : undefined; // undefined = icône par défaut d'Electron
+}
+
 let mainWindow = null;
 
 function createWindow() {
@@ -101,6 +110,7 @@ function createWindow() {
     transparent: true,
     backgroundColor: '#00000000',
     resizable: true,
+    icon: getAppIconPath(),
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,

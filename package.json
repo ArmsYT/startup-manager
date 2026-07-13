@@ -1,6 +1,6 @@
 {
   "name": "startup-manager",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Gestionnaire d'applications au démarrage de Windows",
   "main": "main.js",
   "author": "Arms",
