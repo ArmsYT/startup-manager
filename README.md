@@ -1,9 +1,3 @@
-# Startup Manager
-
-Desktop application (Electron, Windows) to manage which applications launch when your PC boots:
-add, remove, enable/disable, edit, and reorder (Spotify-style drag-and-drop) the list of applications
-launched at session startup.
-
 ## ⚠️ Antivirus / SmartScreen false positives
 
 > [!WARNING]
